@@ -59,9 +59,10 @@ Depois:
 ## Como funciona
 
 - A tabela `frames` mantém os 12 quadros fixos.
+- Cada quadro pode ter um nome em `title`, exibido acima da moldura.
 - O bucket `artes` armazena as imagens.
 - Visitantes veem a galeria e podem abrir uma imagem inteira no modal.
-- A administradora faz login para anexar, trocar ou remover imagens.
+- A administradora faz login para nomear quadros, anexar, trocar ou remover imagens.
 
 ## Build
 

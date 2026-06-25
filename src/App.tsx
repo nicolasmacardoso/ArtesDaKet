@@ -30,6 +30,8 @@ function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [uploadingFrameId, setUploadingFrameId] = useState<number | null>(null);
   const [removingFrameId, setRemovingFrameId] = useState<number | null>(null);
+  const [savingTitleFrameId, setSavingTitleFrameId] = useState<number | null>(null);
+  const [titleDrafts, setTitleDrafts] = useState<Record<number, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const fileInputsRef = useRef<Record<number, HTMLInputElement | null>>({});
 
@@ -99,7 +101,7 @@ function App() {
 
     const { data, error } = await supabase
       .from('frames')
-      .select('id, image_path, updated_at')
+      .select('id, title, image_path, updated_at')
       .order('id', { ascending: true });
 
     if (error) {
@@ -107,7 +109,10 @@ function App() {
       return;
     }
 
-    setFrames(mergeFrames(data ?? []));
+    const nextFrames = mergeFrames(data ?? []);
+
+    setFrames(nextFrames);
+    setTitleDrafts(createTitleDrafts(nextFrames));
   }
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
@@ -143,6 +148,42 @@ function App() {
     }
 
     await supabase.auth.signOut();
+  }
+
+  function handleTitleDraftChange(frameId: number, title: string) {
+    setTitleDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [frameId]: title,
+    }));
+  }
+
+  async function handleSaveTitle(frame: Frame) {
+    if (!supabase || !isAdmin) {
+      return;
+    }
+
+    const title = titleDrafts[frame.id]?.trim() ?? '';
+
+    setSavingTitleFrameId(frame.id);
+    setMessage(null);
+
+    const { error } = await supabase
+      .from('frames')
+      .upsert({
+        id: frame.id,
+        title: title || null,
+        image_path: frame.image_path,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) {
+      setMessage('Não foi possível salvar o nome do quadro.');
+      setSavingTitleFrameId(null);
+      return;
+    }
+
+    await loadFrames();
+    setSavingTitleFrameId(null);
   }
 
   function handleFrameClick(frame: Frame) {
@@ -199,7 +240,12 @@ function App() {
 
     const { error: updateError } = await supabase
       .from('frames')
-      .upsert({ id: frameId, image_path: imagePath, updated_at: new Date().toISOString() });
+      .upsert({
+        id: frameId,
+        title: currentFrame?.title ?? null,
+        image_path: imagePath,
+        updated_at: new Date().toISOString(),
+      });
 
     if (updateError) {
       await supabase.storage.from(FRAMES_BUCKET).remove([imagePath]);
@@ -277,6 +323,14 @@ function App() {
             <div className="frame-row" key={rowIndex}>
               {row.map((frame) => (
                 <article className="frame-card" key={frame.id}>
+                  <div className="frame-heading">
+                    {frame.title ? (
+                      <h3>{frame.title}</h3>
+                    ) : (
+                      <span>{isAdmin ? 'Nome do quadro' : ''}</span>
+                    )}
+                  </div>
+
                   <button
                     className={`frame ${frame.publicUrl ? 'frame--filled' : ''}`}
                     type="button"
@@ -294,25 +348,52 @@ function App() {
                   </button>
 
                   {isAdmin ? (
-                    <div className="frame-actions">
-                      <button
-                        className="icon-action"
-                        type="button"
-                        onClick={() => handleChangeImage(frame.id)}
-                        disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
-                      >
-                        {frame.image_path ? 'Trocar' : 'Anexar'}
-                      </button>
-                      {frame.image_path ? (
+                    <div className="frame-admin">
+                      <div className="frame-title-form">
+                        <input
+                          type="text"
+                          value={titleDrafts[frame.id] ?? ''}
+                          onChange={(event) => handleTitleDraftChange(frame.id, event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              event.preventDefault();
+                              handleSaveTitle(frame);
+                            }
+                          }}
+                          maxLength={40}
+                          placeholder="Nome da arte"
+                          aria-label={`Nome do quadro ${frame.id}`}
+                        />
                         <button
-                          className="icon-action icon-action--danger"
+                          className="icon-action"
                           type="button"
-                          onClick={() => handleRemoveImage(frame)}
+                          onClick={() => handleSaveTitle(frame)}
+                          disabled={savingTitleFrameId === frame.id}
+                        >
+                          {savingTitleFrameId === frame.id ? 'Salvando' : 'Salvar'}
+                        </button>
+                      </div>
+
+                      <div className="frame-actions">
+                        <button
+                          className="icon-action"
+                          type="button"
+                          onClick={() => handleChangeImage(frame.id)}
                           disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
                         >
-                          {removingFrameId === frame.id ? 'Removendo' : 'Remover'}
+                          {frame.image_path ? 'Trocar' : 'Anexar'}
                         </button>
-                      ) : null}
+                        {frame.image_path ? (
+                          <button
+                            className="icon-action icon-action--danger"
+                            type="button"
+                            onClick={() => handleRemoveImage(frame)}
+                            disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
+                          >
+                            {removingFrameId === frame.id ? 'Removendo' : 'Remover'}
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
                   ) : null}
 
@@ -401,6 +482,7 @@ function App() {
 function createEmptyFrames(): Frame[] {
   return frameIds.map((id) => ({
     id,
+    title: null,
     image_path: null,
     updated_at: null,
     publicUrl: null,
@@ -416,11 +498,19 @@ function mergeFrames(records: FrameRecord[]): Frame[] {
 
     return {
       id,
+      title: record?.title ?? null,
       image_path: imagePath,
       updated_at: record?.updated_at ?? null,
       publicUrl: imagePath ? getPublicImageUrl(imagePath) : null,
     };
   });
+}
+
+function createTitleDrafts(frames: Frame[]) {
+  return frames.reduce<Record<number, string>>((drafts, frame) => {
+    drafts[frame.id] = frame.title ?? '';
+    return drafts;
+  }, {});
 }
 
 function getPublicImageUrl(path: string) {

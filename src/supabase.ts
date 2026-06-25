@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export type FrameRecord = {
   id: number;
+  title: string | null;
   image_path: string | null;
   updated_at: string | null;
 };

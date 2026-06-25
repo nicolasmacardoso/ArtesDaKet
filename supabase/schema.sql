@@ -1,8 +1,12 @@
 create table if not exists public.frames (
   id integer primary key check (id between 1 and 12),
+  title text,
   image_path text,
   updated_at timestamptz default now()
 );
+
+alter table public.frames
+add column if not exists title text;
 
 insert into public.frames (id)
 select generate_series(1, 12)

@@ -164,6 +164,30 @@ h2 {
   scroll-snap-align: start;
 }
 
+.frame-heading {
+  display: grid;
+  align-items: end;
+  min-height: 2.15rem;
+}
+
+.frame-heading h3,
+.frame-heading span {
+  margin: 0;
+  overflow: hidden;
+  color: var(--primary-dark);
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-wrap: balance;
+}
+
+.frame-heading span {
+  color: oklch(0.58 0.045 304);
+  font-size: 0.74rem;
+}
+
 .frame {
   position: relative;
   display: grid;
@@ -248,10 +272,23 @@ h2 {
     var(--surface);
 }
 
+.frame-admin {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.frame-title-form,
 .frame-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 0.45rem;
+}
+
+.frame-title-form {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.frame-actions {
+  grid-template-columns: 1fr 1fr;
   min-height: 2.15rem;
 }
 
@@ -270,6 +307,23 @@ h2 {
   background: var(--surface-strong);
   color: var(--ink);
   font-size: 0.78rem;
+}
+
+.frame-title-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.15rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 0 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.frame-title-form input::placeholder {
+  color: oklch(0.5 0.032 304);
 }
 
 .icon-action--danger {
