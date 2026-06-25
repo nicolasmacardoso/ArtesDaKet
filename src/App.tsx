@@ -275,7 +275,7 @@ function App() {
 
     const { error: updateError } = await supabase
       .from('frames')
-      .update({ image_path: null, updated_at: new Date().toISOString() })
+      .update({ title: null, image_path: null, updated_at: new Date().toISOString() })
       .eq('id', frame.id);
 
     if (updateError) {
@@ -291,6 +291,10 @@ function App() {
     }
 
     await loadFrames();
+    setTitleDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [frame.id]: '',
+    }));
     setRemovingFrameId(null);
   }
 
