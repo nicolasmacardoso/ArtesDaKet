@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import {
   adminEmail,
@@ -26,6 +26,7 @@ function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [viewerImage, setViewerImage] = useState<ViewerImage | null>(null);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [uploadingFrameId, setUploadingFrameId] = useState<number | null>(null);
@@ -38,10 +39,6 @@ function App() {
   const loggedUserEmail = session?.user.email?.toLowerCase() ?? '';
   const isAdmin = Boolean(session && adminEmail && loggedUserEmail === adminEmail);
   const filledFramesCount = frames.filter((frame) => frame.image_path).length;
-
-  const rows = useMemo(() => {
-    return [frames.slice(0, 6), frames.slice(6, 12)];
-  }, [frames]);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -313,107 +310,118 @@ function App() {
         </div>
       </section>
 
+      <div className="top-actions">
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() => setIsAdminPanelOpen((currentValue) => !currentValue)}
+          aria-expanded={isAdminPanelOpen}
+          aria-controls="admin-panel"
+        >
+          {session ? 'Edição da galeria' : 'Área da artista'}
+        </button>
+      </div>
+
       {message ? <p className="notice">{message}</p> : null}
 
       <section className="gallery" aria-label="Molduras com artes">
         {loading ? (
           <div className="loading-state">Carregando galeria...</div>
         ) : (
-          rows.map((row, rowIndex) => (
-            <div className="frame-row" key={rowIndex}>
-              {row.map((frame) => (
-                <article className="frame-card" key={frame.id}>
-                  <div className="frame-heading">
-                    {frame.title ? (
-                      <h3>{frame.title}</h3>
-                    ) : (
-                      <span>{isAdmin ? 'Nome do quadro' : ''}</span>
-                    )}
-                  </div>
+          <div className="frame-grid">
+            {frames.map((frame) => (
+              <article className="frame-card" key={frame.id}>
+                <div className="frame-heading">
+                  {frame.title ? (
+                    <h3>{frame.title}</h3>
+                  ) : (
+                    <span>{isAdmin ? 'Nome do quadro' : ''}</span>
+                  )}
+                </div>
 
-                  <button
-                    className={`frame ${frame.publicUrl ? 'frame--filled' : ''}`}
-                    type="button"
-                    onClick={() => handleFrameClick(frame)}
-                    aria-label={getFrameLabel(frame, isAdmin)}
-                  >
-                    {frame.publicUrl ? (
-                      <img src={frame.publicUrl} alt={`Arte no quadro ${frame.id}`} />
-                    ) : (
-                      <span>
-                        Quadro
-                        <strong>{frame.id}</strong>
-                      </span>
-                    )}
-                  </button>
+                <button
+                  className={`frame ${frame.publicUrl ? 'frame--filled' : ''}`}
+                  type="button"
+                  onClick={() => handleFrameClick(frame)}
+                  aria-label={getFrameLabel(frame, isAdmin)}
+                >
+                  {frame.publicUrl ? (
+                    <img src={frame.publicUrl} alt={`Arte no quadro ${frame.id}`} />
+                  ) : (
+                    <span>
+                      Quadro
+                      <strong>{frame.id}</strong>
+                    </span>
+                  )}
+                </button>
 
-                  {isAdmin ? (
-                    <div className="frame-admin">
-                      <div className="frame-title-form">
-                        <input
-                          type="text"
-                          value={titleDrafts[frame.id] ?? ''}
-                          onChange={(event) => handleTitleDraftChange(frame.id, event.target.value)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter') {
-                              event.preventDefault();
-                              handleSaveTitle(frame);
-                            }
-                          }}
-                          maxLength={40}
-                          placeholder="Nome da arte"
-                          aria-label={`Nome do quadro ${frame.id}`}
-                        />
+                {isAdmin ? (
+                  <div className="frame-admin">
+                    <div className="frame-title-form">
+                      <input
+                        type="text"
+                        value={titleDrafts[frame.id] ?? ''}
+                        onChange={(event) => handleTitleDraftChange(frame.id, event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            handleSaveTitle(frame);
+                          }
+                        }}
+                        maxLength={40}
+                        placeholder="Nome da arte"
+                        aria-label={`Nome do quadro ${frame.id}`}
+                      />
+                      <button
+                        className="icon-action"
+                        type="button"
+                        onClick={() => handleSaveTitle(frame)}
+                        disabled={savingTitleFrameId === frame.id}
+                      >
+                        {savingTitleFrameId === frame.id ? 'Salvando' : 'Salvar'}
+                      </button>
+                    </div>
+
+                    <div className="frame-actions">
+                      <button
+                        className="icon-action"
+                        type="button"
+                        onClick={() => handleChangeImage(frame.id)}
+                        disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
+                      >
+                        {frame.image_path ? 'Trocar' : 'Anexar'}
+                      </button>
+                      {frame.image_path ? (
                         <button
-                          className="icon-action"
+                          className="icon-action icon-action--danger"
                           type="button"
-                          onClick={() => handleSaveTitle(frame)}
-                          disabled={savingTitleFrameId === frame.id}
-                        >
-                          {savingTitleFrameId === frame.id ? 'Salvando' : 'Salvar'}
-                        </button>
-                      </div>
-
-                      <div className="frame-actions">
-                        <button
-                          className="icon-action"
-                          type="button"
-                          onClick={() => handleChangeImage(frame.id)}
+                          onClick={() => handleRemoveImage(frame)}
                           disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
                         >
-                          {frame.image_path ? 'Trocar' : 'Anexar'}
+                          {removingFrameId === frame.id ? 'Removendo' : 'Remover'}
                         </button>
-                        {frame.image_path ? (
-                          <button
-                            className="icon-action icon-action--danger"
-                            type="button"
-                            onClick={() => handleRemoveImage(frame)}
-                            disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
-                          >
-                            {removingFrameId === frame.id ? 'Removendo' : 'Remover'}
-                          </button>
-                        ) : null}
-                      </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  </div>
+                ) : null}
 
-                  <input
-                    ref={(element) => {
-                      fileInputsRef.current[frame.id] = element;
-                    }}
-                    className="file-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => handleFileChange(frame.id, event)}
-                  />
-                </article>
-              ))}
-            </div>
-          ))
+                <input
+                  ref={(element) => {
+                    fileInputsRef.current[frame.id] = element;
+                  }}
+                  className="file-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleFileChange(frame.id, event)}
+                />
+              </article>
+            ))}
+          </div>
         )}
       </section>
 
-      <section className="admin-panel" aria-labelledby="admin-title">
+      {isAdminPanelOpen || session ? (
+      <section className="admin-panel" id="admin-panel" aria-labelledby="admin-title">
         <div>
           <p className="admin-panel__label">Área da Ket</p>
           <h2 id="admin-title">Editar galeria</h2>
@@ -444,7 +452,7 @@ function App() {
               />
             </label>
             <button className="primary-button" type="submit" disabled={authLoading}>
-              {authLoading ? 'Entrando...' : 'Entrar'}
+              {authLoading ? 'Acessando...' : 'Acessar edição'}
             </button>
           </form>
         ) : (
@@ -463,6 +471,7 @@ function App() {
           </div>
         )}
       </section>
+      ) : null}
 
       {viewerImage ? (
         <div className="viewer" role="dialog" aria-modal="true" aria-label={`Arte do quadro ${viewerImage.frameId}`}>
