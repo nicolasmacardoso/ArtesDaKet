@@ -53,8 +53,18 @@ Execute o script em [supabase/schema.sql](supabase/schema.sql) no SQL Editor do 
 Depois:
 
 1. Crie a usuária administradora em Authentication.
-2. Use o mesmo e-mail em `VITE_ADMIN_EMAIL`.
-3. Confirme que o bucket `artes` foi criado como público.
+2. Cadastre essa usuária como admin no SQL Editor:
+
+```sql
+insert into public.admin_users (user_id)
+select id
+from auth.users
+where lower(email) = lower('email-da-admin@example.com')
+on conflict (user_id) do nothing;
+```
+
+3. Use o mesmo e-mail em `VITE_ADMIN_EMAIL`.
+4. Confirme que o bucket `artes` foi criado como público.
 
 ## Como funciona
 
