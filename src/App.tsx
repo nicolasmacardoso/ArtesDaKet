@@ -411,6 +411,26 @@ function App() {
 
                 {isAdmin ? (
                   <div className="frame-admin">
+                    <div className="frame-actions">
+                      <button
+                        className="icon-action"
+                        type="button"
+                        onClick={() => handleChangeImage(frame.id)}
+                        disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
+                      >
+                        {frame.image_path ? 'Trocar' : 'Anexar'}
+                      </button>
+                      {frame.image_path ? (
+                        <button
+                          className="icon-action icon-action--danger"
+                          type="button"
+                          onClick={() => handleRemoveImage(frame)}
+                          disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
+                        >
+                          {removingFrameId === frame.id ? 'Removendo' : 'Remover'}
+                        </button>
+                      ) : null}
+                    </div>
                     <div className="frame-title-form">
                       <input
                         type="text"
@@ -434,27 +454,6 @@ function App() {
                       >
                         {savingTitleFrameId === frame.id ? 'Salvando' : 'Salvar'}
                       </button>
-                    </div>
-
-                    <div className="frame-actions">
-                      <button
-                        className="icon-action"
-                        type="button"
-                        onClick={() => handleChangeImage(frame.id)}
-                        disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
-                      >
-                        {frame.image_path ? 'Trocar' : 'Anexar'}
-                      </button>
-                      {frame.image_path ? (
-                        <button
-                          className="icon-action icon-action--danger"
-                          type="button"
-                          onClick={() => handleRemoveImage(frame)}
-                          disabled={uploadingFrameId === frame.id || removingFrameId === frame.id}
-                        >
-                          {removingFrameId === frame.id ? 'Removendo' : 'Remover'}
-                        </button>
-                      ) : null}
                     </div>
                   </div>
                 ) : null}

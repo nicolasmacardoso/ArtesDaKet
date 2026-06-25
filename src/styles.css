@@ -306,7 +306,6 @@ h2 {
 }
 
 .frame-actions {
-  grid-template-columns: 1fr 1fr;
   min-height: 2.15rem;
 }
 
