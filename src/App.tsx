@@ -297,30 +297,27 @@ function App() {
   return (
     <main className="app-shell">
       <section className="intro" aria-labelledby="page-title">
-        <div>
+        <div className="intro__copy">
           <p className="intro__label">Galeria particular</p>
           <h1 id="page-title">Artes da Ket</h1>
-          <p className="intro__text">
-            Um cantinho simples para guardar desenhos favoritos em molduras digitais.
-          </p>
         </div>
-        <div className="intro__counter" aria-label={`${filledFramesCount} de ${FRAME_COUNT} quadros preenchidos`}>
-          <strong>{filledFramesCount}</strong>
-          <span>/ {FRAME_COUNT}</span>
+        <div className="intro__actions">
+          <div className="intro__counter" aria-label={`${filledFramesCount} de ${FRAME_COUNT} quadros preenchidos`}>
+            <strong>{filledFramesCount}</strong>
+            <span>/ {FRAME_COUNT} artes</span>
+          </div>
+          <button
+            className="artist-button"
+            type="button"
+            onClick={() => setIsAdminPanelOpen((currentValue) => !currentValue)}
+            aria-expanded={isAdminPanelOpen}
+            aria-controls="admin-panel"
+          >
+            {session ? 'Edição da galeria' : 'Área da artista'}
+          </button>
         </div>
       </section>
 
-      <div className="top-actions">
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={() => setIsAdminPanelOpen((currentValue) => !currentValue)}
-          aria-expanded={isAdminPanelOpen}
-          aria-controls="admin-panel"
-        >
-          {session ? 'Edição da galeria' : 'Área da artista'}
-        </button>
-      </div>
 
       {message ? <p className="notice">{message}</p> : null}
 
