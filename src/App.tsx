@@ -321,6 +321,59 @@ function App() {
 
       {message ? <p className="notice">{message}</p> : null}
 
+      {isAdminPanelOpen || session ? (
+        <section className="admin-panel" id="admin-panel" aria-labelledby="admin-title">
+          <div>
+            <p className="admin-panel__label">Área da Ket</p>
+            <h2 id="admin-title">Editar galeria</h2>
+          </div>
+
+          {!session ? (
+            <form className="login-form" onSubmit={handleLogin}>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="email@exemplo.com"
+                  autoComplete="email"
+                  required
+                />
+              </label>
+              <label>
+                Senha
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Senha"
+                  autoComplete="current-password"
+                  required
+                />
+              </label>
+              <button className="primary-button" type="submit" disabled={authLoading}>
+                {authLoading ? 'Acessando...' : 'Acessar edição'}
+              </button>
+            </form>
+          ) : (
+            <div className="admin-status">
+              <p>
+                Logado como <strong>{session.user.email}</strong>
+              </p>
+              {!isAdmin ? (
+                <p className="admin-warning">Este e-mail não tem permissão para editar a galeria.</p>
+              ) : (
+                <p>Toque em uma moldura vazia para anexar ou use “Trocar” em uma moldura preenchida.</p>
+              )}
+              <button className="secondary-button" type="button" onClick={handleLogout}>
+                Sair
+              </button>
+            </div>
+          )}
+        </section>
+      ) : null}
+
       <section className="gallery" aria-label="Molduras com artes">
         {loading ? (
           <div className="loading-state">Carregando galeria...</div>
@@ -416,59 +469,6 @@ function App() {
           </div>
         )}
       </section>
-
-      {isAdminPanelOpen || session ? (
-      <section className="admin-panel" id="admin-panel" aria-labelledby="admin-title">
-        <div>
-          <p className="admin-panel__label">Área da Ket</p>
-          <h2 id="admin-title">Editar galeria</h2>
-        </div>
-
-        {!session ? (
-          <form className="login-form" onSubmit={handleLogin}>
-            <label>
-              E-mail
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="email@exemplo.com"
-                autoComplete="email"
-                required
-              />
-            </label>
-            <label>
-              Senha
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Senha"
-                autoComplete="current-password"
-                required
-              />
-            </label>
-            <button className="primary-button" type="submit" disabled={authLoading}>
-              {authLoading ? 'Acessando...' : 'Acessar edição'}
-            </button>
-          </form>
-        ) : (
-          <div className="admin-status">
-            <p>
-              Logado como <strong>{session.user.email}</strong>
-            </p>
-            {!isAdmin ? (
-              <p className="admin-warning">Este e-mail não tem permissão para editar a galeria.</p>
-            ) : (
-              <p>Toque em uma moldura vazia para anexar ou use “Trocar” em uma moldura preenchida.</p>
-            )}
-            <button className="secondary-button" type="button" onClick={handleLogout}>
-              Sair
-            </button>
-          </div>
-        )}
-      </section>
-      ) : null}
 
       {viewerImage ? (
         <div className="viewer" role="dialog" aria-modal="true" aria-label={`Arte do quadro ${viewerImage.frameId}`}>
