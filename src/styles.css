@@ -8,16 +8,16 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   --bg: oklch(1 0 0);
-  --surface: oklch(0.965 0.006 32);
-  --surface-strong: oklch(0.935 0.01 32);
-  --ink: oklch(0.19 0.018 32);
-  --muted: oklch(0.43 0.022 32);
-  --primary: oklch(0.49 0.19 29);
-  --primary-dark: oklch(0.38 0.16 29);
+  --surface: oklch(0.968 0.008 304);
+  --surface-strong: oklch(0.936 0.014 304);
+  --ink: oklch(0.18 0.025 304);
+  --muted: oklch(0.42 0.032 304);
+  --primary: oklch(0.48 0.18 304);
+  --primary-dark: oklch(0.35 0.14 304);
   --accent: oklch(0.64 0.13 155);
   --danger: oklch(0.52 0.19 25);
-  --line: oklch(0.83 0.012 32);
-  --shadow: 0 8px 20px oklch(0.19 0.018 32 / 12%);
+  --line: oklch(0.84 0.018 304);
+  --shadow: 0 8px 20px oklch(0.18 0.025 304 / 13%);
 }
 
 * {
@@ -29,7 +29,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, oklch(0.985 0.002 32), var(--bg) 34rem),
+    linear-gradient(180deg, oklch(0.985 0.008 304), var(--bg) 34rem),
     var(--bg);
 }
 
@@ -130,9 +130,9 @@ h2 {
 .loading-state {
   margin: 0 0 1rem;
   padding: 0.85rem 0.95rem;
-  border: 1px solid oklch(0.83 0.05 29);
+  border: 1px solid oklch(0.82 0.055 304);
   border-radius: 0.7rem;
-  background: oklch(0.975 0.018 29);
+  background: oklch(0.975 0.022 304);
   color: var(--primary-dark);
   font-size: 0.92rem;
   line-height: 1.45;
@@ -174,7 +174,7 @@ h2 {
   border: 0;
   border-radius: 0.35rem;
   background:
-    linear-gradient(135deg, oklch(0.62 0.055 73), oklch(0.43 0.045 63)),
+    linear-gradient(135deg, oklch(0.58 0.07 315), oklch(0.34 0.055 292)),
     var(--surface);
   box-shadow: var(--shadow);
   transition:
@@ -186,7 +186,7 @@ h2 {
   position: absolute;
   inset: 0.55rem;
   z-index: 1;
-  border: 0.42rem solid oklch(0.93 0.012 70);
+  border: 0.42rem solid oklch(0.94 0.018 304);
   border-radius: 0.18rem;
   content: "";
   pointer-events: none;
@@ -196,7 +196,7 @@ h2 {
   position: absolute;
   inset: 1rem;
   z-index: 1;
-  border: 1px solid oklch(0.3 0.03 65 / 36%);
+  border: 1px solid oklch(0.22 0.05 304 / 34%);
   content: "";
   pointer-events: none;
 }
@@ -212,7 +212,7 @@ h2 {
 .secondary-button:focus-visible,
 .icon-action:focus-visible,
 .viewer__close:focus-visible {
-  outline: 3px solid oklch(0.78 0.12 155);
+  outline: 3px solid oklch(0.72 0.13 304);
   outline-offset: 3px;
 }
 
@@ -244,7 +244,7 @@ h2 {
 
 .frame--filled {
   background:
-    linear-gradient(135deg, oklch(0.5 0.07 71), oklch(0.28 0.042 64)),
+    linear-gradient(135deg, oklch(0.43 0.1 306), oklch(0.25 0.07 292)),
     var(--surface);
 }
 
@@ -316,7 +316,7 @@ h2 {
 }
 
 .login-form input::placeholder {
-  color: oklch(0.49 0.018 32);
+  color: oklch(0.49 0.03 304);
 }
 
 .primary-button {
